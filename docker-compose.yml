@@ -3,15 +3,11 @@ services:
     image: mongo:7
     container_name: mongo
     restart: always
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: raghu593/dd-backend:latest
     container_name: backend
     restart: always
     depends_on:
@@ -23,9 +19,7 @@ services:
       - "8080:8080"
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: raghu593/dd-frontend:latest
     container_name: frontend
     restart: always
     depends_on:
@@ -35,3 +29,4 @@ services:
 
 volumes:
   mongo_data:
+
