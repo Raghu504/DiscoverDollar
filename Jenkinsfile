@@ -5,13 +5,12 @@ pipeline {
         DOCKERHUB_USER = 'raghu593'
         BACKEND_IMAGE  = "${DOCKERHUB_USER}/dd-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/dd-frontend"
-        DEPLOY_DIR     = "/home/ubuntu/dd-app"   // folder on the VM with docker-compose.yml
+        DEPLOY_DIR     = "/home/ubuntu/dd-app"   
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Pull the latest code from GitHub
                 checkout scm
             }
         }
