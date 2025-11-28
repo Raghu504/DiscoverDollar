@@ -8,7 +8,12 @@ app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "http://localhost:8081" })); 
+app.use(cors({
+  origin: [
+    "http://localhost:8081",          // local dev
+    "http://3.110.189.212:8081"       // your VM frontend
+  ]
+}));
 const db = require("./app/models");
 db.mongoose
   .connect(db.url, {
