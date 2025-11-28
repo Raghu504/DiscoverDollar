@@ -56,7 +56,6 @@ Step 4: Dockerfile for frontend (React example)
     
     If you’re serving React using a simple Node server:
 
-<img width="1402" height="713" alt="Screenshot 2025-11-28 173229" src="https://github.com/user-attachments/assets/2f8f18b4-79df-4d84-8bf2-2ab4d0151e0f" />
 
 
 (There are other patterns like using Nginx, but this is simple.)
@@ -245,8 +244,200 @@ Set up a GitHub webhook pointing to Jenkins so that every push triggers the pipe
     Logs into your VM.
     
     Updates the running containers.
-<img width="1915" height="965" alt="Screenshot 2025-11-28 172232" src="https://github.com/user-attachments/assets/05c07117-496e-4ca0-bad2-9f402e6f2630" />
 
+<img width="1402" height="713" alt="Screenshot 2025-11-28 173229" src="https://github.com/user-attachments/assets/2f8f18b4-79df-4d84-8bf2-2ab4d0151e0f" />
+
+First: Yes, port 80 must be open
+
+On your cloud VM (AWS, Azure, etc.):
+
+In Security Group / Network rules, allow:
+
+Inbound TCP 80 from 0.0.0.0/0 (or from your IP if you want it locked).
+
+On the VM itself:
+
+If ufw is enabled:
+
+sudo ufw allow 80
+
+
+Otherwise even if Nginx runs fine, you won’t see anything in the browser.
+
+1️⃣ Install Nginx on Ubuntu VM
+
+On your VM:
+
+sudo apt update
+sudo apt install -y nginx
+
+
+Check status:
+
+sudo systemctl status nginx
+
+
+If it’s running, you can hit:
+http://<your-server-ip> → you should see the default Nginx welcome page.
+
+That means Nginx is now listening on port 80.
+
+2️⃣ Make sure your app containers are running on other ports
+
+Your Docker containers should NOT use port 80 now, because Nginx is using it.
+
+Example (just conceptually):
+
+Frontend container → exposed on 3000
+
+Backend container → exposed on 5000
+
+(Optional) Jenkins → exposed on 8080
+
+In your docker-compose.yml you probably have something like:
+
+services:
+  frontend:
+    image: yourdockerhubusername/myapp-frontend:latest
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: yourdockerhubusername/myapp-backend:latest
+    ports:
+      - "5000:5000"
+
+
+That’s fine.
+We’ll now put Nginx in front of these.
+
+Make sure your app is working with raw ports first:
+
+http://<server-ip>:3000 → frontend
+
+http://<server-ip>:5000/api/... → backend
+
+Once that’s ok, move on.
+
+3️⃣ Create Nginx reverse proxy config
+
+We’ll make Nginx do this:
+
+/ → send to frontend at http://localhost:3000
+
+/api → send to backend at http://localhost:5000
+
+Step 3.1: Create a new config file
+sudo nano /etc/nginx/sites-available/myapp
+
+
+Paste this inside:
+
+server {
+    listen 80;
+    server_name _;
+
+    # Frontend (React / Angular etc.)
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Backend API (Node/Express)
+    location /api {
+        proxy_pass http://127.0.0.1:5000;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+🔴 Important: Your backend should be coded so the API routes start with /api or you adjust this path accordingly.
+
+Save and exit (Ctrl+O, Enter, Ctrl+X in nano).
+
+Step 3.2: Enable this site & disable default
+# Enable your config
+sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp
+
+# (Optional but recommended) Disable the default site
+sudo rm /etc/nginx/sites-enabled/default
+
+Step 3.3: Test Nginx config and reload
+sudo nginx -t
+
+
+If it says syntax is ok and test is successful, then:
+
+sudo systemctl reload nginx
+
+ Test the reverse proxy
+
+Now open in browser:
+
+http://<your-server-ip>
+→ should show frontend (even though it’s actually running on 3000).
+
+When frontend calls /api/..., Nginx forwards it to http://127.0.0.1:5000.
+
+So from the outside world:
+
+No one sees port 3000 or 5000.
+
+Everything looks like it’s coming from port 80 only.
+
+ Requirement satisfied:
+
+The entire application should be accessible via port 80.
+
+5️. (Optional) Add Jenkins under same port 80
+
+If later you want:
+
+http://<ip>/jenkins → go to Jenkins at 8080
+
+You can extend the same server block:
+
+    location /jenkins {
+        proxy_pass http://127.0.0.1:8080;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+
+Then:
+
+sudo nginx -t
+sudo systemctl reload nginx
+
+Quick Summary
+
+          Open port 80 on cloud firewall + VM (if UFW).
+          
+          Install Nginx → it listens on 80.
+          
+          Run frontend on 8081, backend on 8080 (via Docker).
+          
+          Configure Nginx with a server block that:
+          
+          sends / → frontend (8081)
+          
+          sends /api → backend (8080)
+
+ Reload Nginx → app now fully available at http://<server-ip> on port 80 only.
+
+
+ 
 End result:
-👉 You just write code and git push.
-👉 The rest (build, push, deploy) happens automatically.
+ You just write code and git push.
+ The rest (build, push, deploy) happens automatically.
