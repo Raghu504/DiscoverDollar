@@ -245,7 +245,8 @@ Set up a GitHub webhook pointing to Jenkins so that every push triggers the pipe
     
     Updates the running containers.
 
-<img width="1402" height="713" alt="Screenshot 2025-11-28 173229" src="https://github.com/user-attachments/assets/2f8f18b4-79df-4d84-8bf2-2ab4d0151e0f" />
+<img width="1915" height="965" alt="Screenshot 2025-11-28 172232" src="https://github.com/user-attachments/assets/21a57716-6cfc-4774-a11e-5c43846c3b66" />
+
 
 First: Yes, port 80 must be open
 
@@ -436,6 +437,7 @@ Quick Summary
 
  Reload Nginx → app now fully available at http://<server-ip> on port 80 only.
 
+<img width="1402" height="713" alt="Screenshot 2025-11-28 173229" src="https://github.com/user-attachments/assets/2f8f18b4-79df-4d84-8bf2-2ab4d0151e0f" />
 
  
 End result:
