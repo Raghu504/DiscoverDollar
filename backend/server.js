@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: [
     "http://localhost:8081",          // local dev
-    "http://3.110.189.212:8081"       // your VM frontend
+    "http://43.204.108.4:8081"       // your VM frontend
   ]
 }));
 const db = require("./app/models");
