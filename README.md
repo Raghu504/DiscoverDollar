@@ -440,7 +440,8 @@ Quick Summary
 
 <img width="1402" height="713" alt="Screenshot 2025-11-28 173229" src="https://github.com/user-attachments/assets/2f8f18b4-79df-4d84-8bf2-2ab4d0151e0f" />
 
- 
+ <img width="858" height="434" alt="image" src="https://github.com/user-attachments/assets/c31b495c-3d26-4587-982e-8e978e035f67" />
+
 End result:
  You just write code and git push.
  The rest (build, push, deploy) happens automatically.
