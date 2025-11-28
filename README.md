@@ -35,6 +35,7 @@ Step 2: Connect your local project
     Now your complete code is on GitHub.
 
 <img width="1919" height="900" alt="Screenshot 2025-11-28 172345" src="https://github.com/user-attachments/assets/2b15c378-58e9-4f44-a795-c51bd6642716" />
+<img width="1900" height="909" alt="Screenshot 2025-11-28 172118" src="https://github.com/user-attachments/assets/41e4464d-3e43-4eba-bfbf-c92547868350" />
 
 2️.Containerization (Dockerizing frontend & backend)
 
